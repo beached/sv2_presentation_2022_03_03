@@ -95,22 +95,23 @@ constexpr uri_parts parse_url( std::string_view uri_string ) {
 }
 
 int main( ) {
-	constexpr uri_parts p0 = parse_url( "http://www.google.ca" );
-	static_assert( p0.scheme == "http" );
+	constexpr uri_parts p0 = parse_url( "https://www.google.ca" );
+	static_assert( p0.scheme == "https" );
 	static_assert( p0.authority == "www.google.ca" );
 	static_assert( p0.path.empty( ) );
 	static_assert( p0.query.empty( ) );
 	static_assert( p0.fragment.empty( ) );
 
-	constexpr uri_parts p1 = parse_url( "http://www.fun.com/joke?q=knock+knock" );
-	static_assert( p1.scheme == "http" );
-	static_assert( p1.authority == "www.fun.com" );
+	constexpr uri_parts p1 =
+	  parse_url( "https://www.example.com/joke?q=knock+knock" );
+	static_assert( p1.scheme == "https" );
+	static_assert( p1.authority == "www.example.com" );
 	static_assert( p1.path == "/joke" );
 	static_assert( p1.query == "q=knock+knock" );
 	static_assert( p1.fragment.empty( ) );
 
-	constexpr uri_parts p2 = parse_url( "http://www.example.com/#stuff" );
-	static_assert( p2.scheme == "http" );
+	constexpr uri_parts p2 = parse_url( "https://www.example.com/#stuff" );
+	static_assert( p2.scheme == "https" );
 	static_assert( p2.authority == "www.example.com" );
 	static_assert( p2.path == "/" );
 	static_assert( p2.query.empty( ) );
