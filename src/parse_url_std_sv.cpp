@@ -9,7 +9,6 @@
 // Demonstrate a conventional string_view based function to convert a
 // string_view into it's URI parts
 
-#include <cassert>
 #include <string_view>
 
 struct uri_parts {
@@ -19,6 +18,23 @@ struct uri_parts {
 	std::string_view query;
 	std::string_view fragment;
 };
+
+constexpr std::size_t find_if( std::string_view sv, auto pred ) {
+	auto it = std::find_if( sv.begin( ), sv.end( ), pred );
+	if( it == sv.end( ) ) {
+		return std::string_view::npos;
+	}
+	return static_cast<std::size_t>( std::distance( sv.begin( ), it ) );
+}
+
+template<char... Ch>
+struct any_of_t {
+	constexpr bool operator( )( char c ) const noexcept {
+		return ( ( c == Ch ) or ... );
+	}
+};
+template<char... Ch>
+inline constexpr auto any_of = any_of_t<Ch...>{ };
 
 // scheme://authority:port/path/?query#fragment
 constexpr uri_parts parse_url( std::string_view uri_string ) {
@@ -35,28 +51,42 @@ constexpr uri_parts parse_url( std::string_view uri_string ) {
 		return result;
 	}
 	uri_string.remove_prefix( 3 );
-	auto it = std::find_if( uri_string.begin( ), uri_string.end( ), []( char c ) {
-		return c == '/' or c == '?' or c == '#';
-	} );
-	pos = std::distance( uri_string.begin( ), it );
-	result.authority = uri_string.substr( 0, pos );
-	uri_string.remove_prefix( pos );
-	it = std::find_if( uri_string.begin( ), uri_string.end( ),
-	                   []( char c ) { return c == '?' or c == '#'; } );
-	pos = std::distance( uri_string.begin( ), it );
-	result.path = uri_string.substr( 0, pos );
-	uri_string.remove_prefix( pos );
-	// Need to check, UB to remove_prefix if size( ) < 1
-	if( uri_string.empty( ) ) {
+	pos = find_if( uri_string, any_of<'/', '?', '#'> );
+	if( pos == std::string_view::npos ) {
+		result.authority = uri_string;
 		return result;
 	}
-	uri_string.remove_prefix( 1 );
-	pos = uri_string.find( '#' );
-	if( pos != std::string_view::npos ) {
+	result.authority = uri_string.substr( 0, pos );
+	uri_string.remove_prefix( pos );
+	pos = find_if( uri_string, any_of<'?', '#'> );
+	if( pos == std::string_view::npos ) {
+		result.path = uri_string;
+		return result;
+	}
+	result.path = uri_string.substr( 0, pos );
+
+	bool const is_query = uri_string[pos] == '?';
+	uri_string.remove_prefix( pos );
+	if( is_query ) {
+		// Need to check, UB to remove_prefix if size( ) < 1
+		if( uri_string.empty( ) ) {
+			return result;
+		}
+		uri_string.remove_prefix( 1 );
+		pos = uri_string.find( '#' );
+		if( pos == std::string_view::npos ) {
+			result.query = uri_string;
+			return result;
+		}
 		result.query = uri_string.substr( 0, pos );
 		uri_string.remove_prefix( pos );
 		// Need to check, UB to remove_prefix if size( ) < 1
 		if( not uri_string.empty( ) ) {
+			uri_string.remove_prefix( 1 );
+		}
+	}
+	if( not uri_string.empty( ) ) {
+		if( not is_query ) {
 			uri_string.remove_prefix( 1 );
 		}
 	}
@@ -72,11 +102,17 @@ int main( ) {
 	static_assert( p0.query.empty( ) );
 	static_assert( p0.fragment.empty( ) );
 
-	constexpr uri_parts p1 =
-	  parse_url( "http://www.fun.com/joke?q=knock+knock#whos+there" );
+	constexpr uri_parts p1 = parse_url( "http://www.fun.com/joke?q=knock+knock" );
 	static_assert( p1.scheme == "http" );
 	static_assert( p1.authority == "www.fun.com" );
 	static_assert( p1.path == "/joke" );
 	static_assert( p1.query == "q=knock+knock" );
-	static_assert( p1.fragment == "whos+there" );
+	static_assert( p1.fragment.empty( ) );
+
+	constexpr uri_parts p2 = parse_url( "http://www.example.com/#stuff" );
+	static_assert( p2.scheme == "http" );
+	static_assert( p2.authority == "www.example.com" );
+	static_assert( p2.path == "/" );
+	static_assert( p2.query.empty( ) );
+	static_assert( p2.fragment == "stuff" );
 }

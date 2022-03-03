@@ -18,12 +18,24 @@ struct uri_parts {
 
 // scheme://authority:port/path/?query#fragment
 constexpr uri_parts parse_url( daw::string_view uri_string ) {
-	return { .scheme = uri_string.pop_front_until( "://" ),
-	         .authority = uri_string.pop_front_until( daw::any_of<'/', '?', '#'>,
-	                                                  daw::nodiscard ),
-	         .path = uri_string.try_pop_front_until( daw::any_of<'?', '#'> ),
-	         .query = uri_string.try_pop_front_until( '#' ),
-	         .fragment = uri_string };
+	auto result = uri_parts{ };
+	result.scheme = uri_string.pop_front_until( "://" );
+	result.authority =
+	  uri_string.pop_front_until( daw::any_of<'/', '?', '#'>, daw::nodiscard );
+	result.path =
+	  uri_string.pop_front_until( daw::any_of<'?', '#'>, daw::nodiscard );
+	if( uri_string.empty( ) ) {
+		return result;
+	}
+	if( uri_string.front( ) == '?' ) {
+		uri_string.remove_prefix( );
+		result.query = uri_string.pop_front_until( '#' );
+	}
+	if( not uri_string.empty( ) and uri_string.front( ) == '#' ) {
+		uri_string.remove_prefix( );
+	}
+	result.fragment = uri_string;
+	return result;
 }
 
 int main( ) {
@@ -34,13 +46,12 @@ int main( ) {
 	static_assert( p0.query.empty( ) );
 	static_assert( p0.fragment.empty( ) );
 
-	constexpr uri_parts p1 =
-	  parse_url( "http://www.fun.com/joke?q=knock+knock#whos+there" );
+	constexpr uri_parts p1 = parse_url( "http://www.fun.com/joke?q=knock+knock" );
 	static_assert( p1.scheme == "http" );
 	static_assert( p1.authority == "www.fun.com" );
 	static_assert( p1.path == "/joke" );
 	static_assert( p1.query == "q=knock+knock" );
-	static_assert( p1.fragment == "whos+there" );
+	static_assert( p1.fragment.empty( ) );
 
 	constexpr uri_parts p2 = parse_url( "http://www.example.com/#stuff" );
 	static_assert( p2.scheme == "http" );
