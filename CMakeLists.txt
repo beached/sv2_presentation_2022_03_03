@@ -48,4 +48,11 @@ add_executable(split_string_daw_sv2 src/split_string_daw_sv2.cpp)
 target_link_libraries(split_string_daw_sv2 PRIVATE daw::daw-header-libraries)
 add_test(split_string_daw_sv2_test split_string_daw_sv2)
 
+add_executable(trim_string_std_sv src/trim_string_std_sv.cpp)
+target_link_libraries(trim_string_std_sv PRIVATE daw::daw-header-libraries)
+add_test(trim_string_std_sv_test trim_string_std_sv)
+
+add_executable(trim_string_daw_sv2 src/trim_string_daw_sv2.cpp)
+target_link_libraries(trim_string_daw_sv2 PRIVATE daw::daw-header-libraries)
+add_test(trim_string_daw_sv2_test trim_string_daw_sv2)
 

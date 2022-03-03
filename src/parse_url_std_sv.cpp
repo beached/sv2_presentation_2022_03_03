@@ -51,7 +51,7 @@ constexpr uri_parts parse_url( std::string_view uri_string ) {
 		return result;
 	}
 	uri_string.remove_prefix( 3 );
-	pos = find_if( uri_string, any_of<'/', '?', '#'> );
+	pos = uri_string.find( '/' );
 	if( pos == std::string_view::npos ) {
 		result.authority = uri_string;
 		return result;

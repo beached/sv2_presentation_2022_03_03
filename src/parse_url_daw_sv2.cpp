@@ -20,20 +20,23 @@ struct uri_parts {
 constexpr uri_parts parse_url( daw::string_view uri_string ) {
 	auto result = uri_parts{ };
 	result.scheme = uri_string.pop_front_until( "://" );
-	result.authority =
-	  uri_string.pop_front_until( daw::any_of<'/', '?', '#'>, daw::nodiscard );
+	result.authority = uri_string.pop_front_until( '/', daw::nodiscard );
 	result.path =
 	  uri_string.pop_front_until( daw::any_of<'?', '#'>, daw::nodiscard );
+
 	if( uri_string.empty( ) ) {
 		return result;
 	}
 	if( uri_string.front( ) == '?' ) {
+		// Never UB to call remove_prefix
 		uri_string.remove_prefix( );
 		result.query = uri_string.pop_front_until( '#' );
 	}
+
 	if( not uri_string.empty( ) and uri_string.front( ) == '#' ) {
-		// Never UB to call remove_prefix
-		uri_string.remove_prefix( );
+		// remove_prefix without dont_clip_to_bounds is guaranteed to succeed.  When
+		// empty it will result in an empty string_view by default
+		uri_string.remove_prefix( daw::dont_clip_to_bounds );
 	}
 	result.fragment = uri_string;
 	return result;

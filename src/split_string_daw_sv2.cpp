@@ -12,8 +12,7 @@
 
 int main( ) {
 	daw::string_view sv = "This is a test  of the test system   ";
-	(void)sv.trim_suffix( );
-	while( not sv.trim_prefix( ).empty( ) ) {
+	while( not sv.empty( ) ) {
 		auto part = sv.pop_front_until( ' ' );
 		std::cout << '"' << part << '"' << '\n';
 	}
