@@ -6,17 +6,17 @@
 # Official repository: https://github.com/beached/sv2_presentation_2022_03_03
 #
 
-option( DAW_ENABLE_TESTING "Build unit tests" OFF )
-if( DAW_ENABLE_TESTING )
-	set( DAW_ENABLE_TESTING OFF )
-endif( )
+option(DAW_ENABLE_TESTING "Build unit tests" OFF)
+if (DAW_ENABLE_TESTING)
+    set(DAW_ENABLE_TESTING OFF)
+endif ()
 
-include( FetchContent )
+include(FetchContent)
 
 FetchContent_Declare(
-	daw_header_libraries
-	GIT_REPOSITORY https://github.com/beached/header_libraries.git
-	GIT_TAG 810566fb85e6877c731d6eb12b2fd94df8af58aa
+        daw_header_libraries
+        GIT_REPOSITORY https://github.com/beached/header_libraries.git
+        GIT_TAG v2.21.0
 )
 
 FetchContent_MakeAvailable(daw_header_libraries)

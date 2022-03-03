@@ -21,8 +21,8 @@ constexpr uri_parts parse_url( daw::string_view uri_string ) {
 	return { .scheme = uri_string.pop_front_until( "://" ),
 	         .authority = uri_string.pop_front_until( daw::any_of<'/', '?', '#'>,
 	                                                  daw::nodiscard ),
-	         .path = uri_string.pop_front_until( daw::any_of<'?', '#'> ),
-	         .query = uri_string.pop_front_until( '#' ),
+	         .path = uri_string.try_pop_front_until( daw::any_of<'?', '#'> ),
+	         .query = uri_string.try_pop_front_until( '#' ),
 	         .fragment = uri_string };
 }
 
@@ -34,10 +34,18 @@ int main( ) {
 	static_assert( p0.query.empty( ) );
 	static_assert( p0.fragment.empty( ) );
 
-	constexpr uri_parts p1 = parse_url( "http://www.google.ca/search?q=string_view" );
+	constexpr uri_parts p1 =
+	  parse_url( "http://www.fun.com/joke?q=knock+knock#whos+there" );
 	static_assert( p1.scheme == "http" );
-	static_assert( p1.authority == "www.google.ca" );
-	static_assert( p1.path == "/search" );
-	static_assert( p1.query == "q=string_view" );
-	static_assert( p1.fragment.empty( ) );
+	static_assert( p1.authority == "www.fun.com" );
+	static_assert( p1.path == "/joke" );
+	static_assert( p1.query == "q=knock+knock" );
+	static_assert( p1.fragment == "whos+there" );
+
+	constexpr uri_parts p2 = parse_url( "http://www.example.com/#stuff" );
+	static_assert( p2.scheme == "http" );
+	static_assert( p2.authority == "www.example.com" );
+	static_assert( p2.path == "/" );
+	static_assert( p2.query.empty( ) );
+	static_assert( p2.fragment == "stuff" );
 }

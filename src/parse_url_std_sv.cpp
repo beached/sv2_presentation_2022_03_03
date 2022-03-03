@@ -6,6 +6,9 @@
 // Official repository: https://github.com/beached/sv2_presentation_2022_03_03
 //
 
+// Demonstrate a conventional string_view based function to convert a
+// string_view into it's URI parts
+
 #include <cassert>
 #include <string_view>
 
@@ -70,10 +73,10 @@ int main( ) {
 	static_assert( p0.fragment.empty( ) );
 
 	constexpr uri_parts p1 =
-	  parse_url( "http://www.google.ca/search?q=string_view" );
+	  parse_url( "http://www.fun.com/joke?q=knock+knock#whos+there" );
 	static_assert( p1.scheme == "http" );
-	static_assert( p1.authority == "www.google.ca" );
-	static_assert( p1.path == "/search" );
-	assert( p1.query == "q=string_view" );
-	assert( p1.fragment.empty( ) );
+	static_assert( p1.authority == "www.fun.com" );
+	static_assert( p1.path == "/joke" );
+	static_assert( p1.query == "q=knock+knock" );
+	static_assert( p1.fragment == "whos+there" );
 }
