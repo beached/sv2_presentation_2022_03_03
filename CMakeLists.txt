@@ -40,4 +40,12 @@ add_executable(parse_url_daw_sv2 src/parse_url_daw_sv2.cpp)
 target_link_libraries(parse_url_daw_sv2 PRIVATE daw::daw-header-libraries)
 add_test(parse_url_daw_sv2_test parse_url_daw_sv2)
 
+add_executable(split_string_std_sv src/split_string_std_sv.cpp)
+target_link_libraries(split_string_std_sv PRIVATE daw::daw-header-libraries)
+add_test(split_string_std_sv_test split_string_std_sv)
+
+add_executable(split_string_daw_sv2 src/split_string_daw_sv2.cpp)
+target_link_libraries(split_string_daw_sv2 PRIVATE daw::daw-header-libraries)
+add_test(split_string_daw_sv2_test split_string_daw_sv2)
+
 

@@ -32,6 +32,7 @@ constexpr uri_parts parse_url( daw::string_view uri_string ) {
 		result.query = uri_string.pop_front_until( '#' );
 	}
 	if( not uri_string.empty( ) and uri_string.front( ) == '#' ) {
+		// Never UB to call remove_prefix
 		uri_string.remove_prefix( );
 	}
 	result.fragment = uri_string;
